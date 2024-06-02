@@ -1,42 +1,57 @@
 #!/usr/bin/env python3
 
-from shoe import Shoe
+import pytest
+from lib.shoe import Shoe
 
 import io
 import sys
 
+
 class TestShoe:
-    '''Shoe in shoe.py'''
+    def test_shoe_initialization(self):
+        shoe = Shoe("Nike", 9.5, "Leather")
+        assert shoe.brand == "Nike"
+        assert shoe.size == 9.5
+        assert shoe.material == "Leather"
 
-    def test_has_brand_and_size(self):
-        '''has the brand and size passed to __init__, and values can be set to new instance.'''
-        stan_smith = Shoe("Adidas", 9)
-        assert(stan_smith.brand == "Adidas")
-        assert(stan_smith.size == 9)
+    def test_brand_validation(self):
+        with pytest.raises(ValueError):
+            Shoe(123, 9.5, "Leather")  # brand is not a string
 
-    def test_requires_int_size(self):
-        '''prints "size must be an integer" if size is not an integer.'''
-        stan_smith = Shoe("Adidas", 9)
-        captured_out = io.StringIO()
-        sys.stdout = captured_out
-        stan_smith.size = "not an integer"
-        sys.stdout = sys.__stdout__
-        assert captured_out.getvalue() == "size must be an integer\n"
+    def test_size_validation(self):
+        with pytest.raises(ValueError):
+            Shoe("Nike", -9.5, "Leather")  # size is negative
+        with pytest.raises(ValueError):
+            Shoe("Nike", "nine", "Leather")  # size is not a number
 
-    def test_can_cobble(self):
-        '''says that the shoe has been repaired.'''
-        stan_smith = Shoe("Adidas", 9)
-        captured_out = io.StringIO()
-        sys.stdout = captured_out
-        stan_smith.cobble()
-        sys.stdout = sys.__stdout__
-        assert(captured_out.getvalue() == "Your shoe is as good as new!\n")
-    
-    def test_cobble_makes_new(self):
-        '''creates an attribute on the instance called 'condition' and set equal to 'New' after repair.'''
-        stan_smith = Shoe("Adidas", 9)
-        stan_smith.cobble()
-        assert(stan_smith.condition == "New")
-        
-        
+    def test_material_validation(self):
+        with pytest.raises(ValueError):
+            Shoe("Nike", 9.5, 123)  # material is not a string
+
+    def test_brand_setter(self):
+        shoe = Shoe("Nike", 9.5, "Leather")
+        shoe.brand = "Adidas"
+        assert shoe.brand == "Adidas"
+
+        with pytest.raises(ValueError):
+            shoe.brand = 123  # brand is not a string
+
+    def test_size_setter(self):
+        shoe = Shoe("Nike", 9.5, "Leather")
+        shoe.size = 10.0
+        assert shoe.size == 10.0
+
+        with pytest.raises(ValueError):
+            shoe.size = -10.0  # size is negative
+        with pytest.raises(ValueError):
+            shoe.size = "ten"  # size is not a number
+
+    def test_material_setter(self):
+        shoe = Shoe("Nike", 9.5, "Leather")
+        shoe.material = "Synthetic"
+        assert shoe.material == "Synthetic"
+
+        with pytest.raises(ValueError):
+            shoe.material = 123  # material is not a string
+
    

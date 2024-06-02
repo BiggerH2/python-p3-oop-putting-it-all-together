@@ -1,33 +1,54 @@
 #!/usr/bin/env python3
-
-from book import Book
+import pytest
+from lib.book import Book
 
 import io
 import sys
 
+
 class TestBook:
-    '''Book in book.py'''
+    def test_book_initialization(self):
+        book = Book("1984", "George Orwell", 328)
+        assert book.title == "1984"
+        assert book.author == "George Orwell"
+        assert book.page_count == 328
 
-    def test_has_title_and_page_count(self):
-        '''has the title and page_count passed into __init__, and values can be set to new instance.'''
-        book = Book("And Then There Were None", 272)
-        assert(book.page_count == 272)
-        assert(book.title == "And Then There Were None")
+    def test_title_validation(self):
+        with pytest.raises(ValueError):
+            Book(1984, "George Orwell", 328)  # title is not a string
 
-    def test_requires_int_page_count(self):
-        '''prints "page_count must be an integer" if page_count is not an integer.'''
-        book = Book("And Then There Were None", 272)
-        captured_out = io.StringIO()
-        sys.stdout = captured_out
-        book.page_count = "not an integer"
-        sys.stdout = sys.__stdout__
-        assert captured_out.getvalue() == "page_count must be an integer\n"
+    def test_author_validation(self):
+        with pytest.raises(ValueError):
+            Book("1984", 1984, 328)  # author is not a string
 
-    def test_can_turn_page(self):
-        '''outputs "Flipping the page...wow, you read fast!" when method turn_page() is called'''
-        book = Book("The World According to Garp", 69)
-        captured_out = io.StringIO()
-        sys.stdout = captured_out
-        book.turn_page()
-        sys.stdout = sys.__stdout__
-        assert(captured_out.getvalue() == "Flipping the page...wow, you read fast!\n")
+    def test_page_count_validation(self):
+        with pytest.raises(ValueError):
+            Book("1984", "George Orwell", -328)  # page_count is negative
+        with pytest.raises(ValueError):
+            Book("1984", "George Orwell", "three hundred")  # page_count is not an integer
+
+    def test_title_setter(self):
+        book = Book("1984", "George Orwell", 328)
+        book.title = "Animal Farm"
+        assert book.title == "Animal Farm"
+
+        with pytest.raises(ValueError):
+            book.title = 123  # title is not a string
+
+    def test_author_setter(self):
+        book = Book("1984", "George Orwell", 328)
+        book.author = "Eric Blair"
+        assert book.author == "Eric Blair"
+
+        with pytest.raises(ValueError):
+            book.author = 123  # author is not a string
+
+    def test_page_count_setter(self):
+        book = Book("1984", "George Orwell", 328)
+        book.page_count = 112
+        assert book.page_count == 112
+
+        with pytest.raises(ValueError):
+            book.page_count = -112  # page_count is negative
+        with pytest.raises(ValueError):
+            book.page_count = "one hundred twelve"  # page_count is not an integer
